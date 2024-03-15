@@ -3,8 +3,10 @@ import { PrismaTransactionRepository } from "../database/repositories/prisma/pri
 import { UploadTransactionsFromCSVController } from "@/adapters/controllers/http/transaction/upload-transactions-from-csv.controller";
 import { CSVParserProvider } from "../providers/csv-parser.provider";
 
+const BATCH_SIZE = 1000;
+
 const repository = new PrismaTransactionRepository();
-const csvParserProvider = new CSVParserProvider();
+const csvParserProvider = new CSVParserProvider(BATCH_SIZE);
 
 const usecase = new UploadTransactionsFromCSVUseCase(
   repository,

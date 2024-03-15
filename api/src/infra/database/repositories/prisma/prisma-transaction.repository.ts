@@ -14,14 +14,30 @@ export class PrismaTransactionRepository implements ITransactionRepository {
     throw new Error("Method not implemented.");
   }
   async createMany(transactions: Transaction[]): Promise<boolean> {
-    const createdTransactions = await prisma.transaction.createMany({
-      data: transactions.map((transaction) =>
-        TransactionMapper.toDatabase(transaction)
-      ),
-    });
+    // console.log
+    //   !!transactions.every(
+    //     (transaction) => transaction.installmentSequenceNumber
+    //   )
+    // );
+    console.log(
+      "PrismaTransactionRepository: ",
+      transactions.map((item) => item.currentValue)
+    );
 
-    return !!createdTransactions.count;
+    const createdTransactions = await prisma.transaction
+      .createMany({
+        data: transactions.map((transaction) => {
+          return TransactionMapper.toDatabase(transaction);
+        }),
+      })
+      .catch((error) => console.log(error));
+
+    return !!createdTransactions;
+    await prisma.transaction.deleteMany({});
+
+    return true;
   }
+
   update(
     id: string,
     transaction: Partial<ITransactionProps>

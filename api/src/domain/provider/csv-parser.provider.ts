@@ -1,6 +1,10 @@
-export type OnDataCallback = (rows: Record<string, any>[]) => Promise<void>;
-export type OnEndCallback = (currentBatchLength: number) => Promise<void>;
+export type ProccessChunkCallback = (
+  rows: Record<string, any>[]
+) => Promise<void>;
 
 export interface ICSVParserProvider {
-  handle(csvBuffer: Buffer, onDataCallback: OnDataCallback): Promise<void>;
+  handle(
+    csvBuffer: Buffer,
+    processChunkCallback: ProccessChunkCallback
+  ): Promise<void>;
 }

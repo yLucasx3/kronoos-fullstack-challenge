@@ -40,8 +40,8 @@ model Transaction {
   iofValue                  Float
   discountValue             Float
   currentValue              Float
-  situationId               Int
-  salesSituationId          Int
+  situationId               String
+  salesSituationId          String
 
   @@map("transactions")
 }
@@ -49,7 +49,7 @@ model Transaction {
 model FailedTransaction {
   id String @id @default(uuid())
 
-  transaction_data Json
-  reason           String
-  date             DateTime
+  transactionData Json
+  reasons         String[]
+  date            DateTime
 }

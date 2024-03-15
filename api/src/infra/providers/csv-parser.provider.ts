@@ -1,41 +1,52 @@
-import { ITransactionRowFromCsvProps } from "@/adapters/dtos/transaction.dto";
 import {
   ICSVParserProvider,
-  OnDataCallback,
-  OnEndCallback,
+  ProccessChunkCallback,
 } from "@/domain/provider/csv-parser.provider";
 import csvParser from "csv-parser";
 import { Readable } from "stream";
 
 export class CSVParserProvider implements ICSVParserProvider {
-  chunkSize: number = 1024 * 1024 * 1; // 100MB;
-  currentChunk: number = 1;
-  currentChunkSize: number = 0;
-  chunkData: Record<string, any>[] = [];
+  batch: Record<string, any>[] = [];
+  rowCount: number = 0;
+
+  constructor(private batchSize: number) {}
 
   async handle(
     csvBuffer: Buffer,
-    onDataCallback: OnDataCallback
+    processChunkCallback: ProccessChunkCallback
   ): Promise<void> {
-    const readableStream = Readable.from(csvBuffer);
-
-    readableStream
+    const stream = Readable.from(csvBuffer)
       .pipe(csvParser())
       .on("data", async (row) => {
-        this.chunkData.push(row);
-        this.currentChunkSize += Buffer.byteLength(`${JSON.stringify(row)}\n`);
+        this.batch.push(row);
+        this.rowCount++;
 
-        if (this.currentChunkSize >= this.chunkSize) {
-          console.log(this.currentChunk);
-          this.currentChunk++;
-          this.currentChunkSize = 0;
-          this.chunkData = [];
+        if (this.batch.length === this.batchSize) {
+          stream.pause();
+
+          await processChunkCallback(this.batch)
+            .then(() => {
+              this.batch = [];
+              stream.resume();
+            })
+            .catch((error) => console.error("Error processing batch: ", error));
         }
       })
       .on("end", () => {
-        console.log(this.chunkData.length);
-        console.log("CSV uploaded with successfully.");
+        if (this.batch.length > 0) {
+          processChunkCallback(this.batch).then(() =>
+            console.log(
+              "CSV processing completed. Total rows processed:",
+              this.rowCount
+            )
+          );
+        } else {
+          console.log(
+            "CSV processing completed. Total rows processed:",
+            this.rowCount
+          );
+        }
       })
-      .on("error", (error) => console.log(error));
+      .on("error", (error) => console.log("Error processing csv: ", error));
   }
 }

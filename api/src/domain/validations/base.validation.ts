@@ -8,5 +8,5 @@ export abstract class BaseValidation {
   }
 
   abstract isValid(): boolean;
-  abstract error(): BaseError;
+  abstract error(): BaseError | string;
 }

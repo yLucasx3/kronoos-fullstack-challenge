@@ -2,10 +2,8 @@ import {
   ITransactionRowFromCsvProps,
   TransactionRequestDTO,
 } from "@/adapters/dtos/transaction.dto";
-import {
-  ITransactionProps,
-  Transaction,
-} from "@/domain/entities/transaction.entity";
+import { FailedTransaction } from "@/domain/entities/failed-transaction";
+import { Transaction } from "@/domain/entities/transaction.entity";
 import { ICSVParserProvider } from "@/domain/provider/csv-parser.provider";
 import { ITransactionRepository } from "@/domain/repositories/transaction.repository";
 
@@ -16,10 +14,24 @@ export class UploadTransactionsFromCSVUseCase {
   ) {}
 
   async execute(csvBuffer: Buffer): Promise<boolean> {
-    let transactionsChunk: Transaction[] = [];
+    const transactions: Transaction[] = [];
+    const failedTransactions: FailedTransaction[] = [];
 
-    this.csvParserProvider.handle(csvBuffer, async (row) => {
-      // console.log(row);
+    this.csvParserProvider.handle(csvBuffer, async (rows) => {
+      rows.forEach((row) => {
+        try {
+          transactions.push(
+            new TransactionRequestDTO().map(row as ITransactionRowFromCsvProps)
+          );
+        } catch (error) {
+          // failedTransactions.push({
+          //   transaction: row,
+          //   errors: [error as unknown as string],
+          // });
+        }
+      });
+
+      await this.transactionRepository.createMany(transactions);
     });
 
     return true;

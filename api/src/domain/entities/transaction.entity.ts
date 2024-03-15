@@ -27,8 +27,8 @@ export interface ITransactionProps {
   iofValue: number;
   discountValue: number;
   currentValue: number;
-  situationId: number;
-  salesSituationId: number;
+  situationId: string;
+  salesSituationId: string;
 }
 
 export class Transaction extends BaseEntity<ITransactionProps> {
@@ -135,11 +135,11 @@ export class Transaction extends BaseEntity<ITransactionProps> {
     return this.props.currentValue;
   }
 
-  get situationId(): number {
+  get situationId(): string {
     return this.props.situationId;
   }
 
-  get salesSituationId(): number {
+  get salesSituationId(): string {
     return this.props.salesSituationId;
   }
 }

@@ -16,7 +16,3 @@ export const convertToDate = (dateString: string): Date => {
 
   return new Date(`${year}-${month}-${day}`);
 };
-
-export const convertToFloat = (toConvert: string): number => {
-  return parseFloat(toConvert.replace(/\./g, ""));
-};

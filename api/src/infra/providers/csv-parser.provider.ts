@@ -36,13 +36,13 @@ export class CSVParserProvider implements ICSVParserProvider {
         if (this.batch.length > 0) {
           processChunkCallback(this.batch).then(() =>
             console.log(
-              "CSV processing completed. Total rows processed:",
+              "1.CSV processing completed. Total rows processed:",
               this.rowCount
             )
           );
         } else {
           console.log(
-            "CSV processing completed. Total rows processed:",
+            "2.CSV processing completed. Total rows processed:",
             this.rowCount
           );
         }

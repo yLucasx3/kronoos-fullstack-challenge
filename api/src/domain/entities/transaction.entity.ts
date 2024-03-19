@@ -1,50 +1,75 @@
 import { Document } from "../validations/document.validation";
+import { NumberValidation } from "../validations/number.validation";
 import { BaseEntity } from "./base.entity";
 
 export interface ITransactionProps {
-  institutionNumber: number;
-  agencyNumber: number;
-  customerId: number;
+  institutionNumber: NumberValidation;
+  agencyNumber: NumberValidation;
+  customerId: NumberValidation;
   customerName: string;
   document: Document;
-  contractNumber: number;
+  contractNumber: NumberValidation;
   contractDate: Date;
-  amount: number;
-  productId: number;
+  amount: NumberValidation;
+  productId: NumberValidation;
   productDescription: string;
-  walletId: number;
+  walletId: NumberValidation;
   walletDescription: string;
-  proposalNumber: number;
-  installments: number;
-  installmentNumber: number;
+  proposalNumber: NumberValidation;
+  installments: NumberValidation;
+  installmentNumber: NumberValidation;
   installmentType: string;
-  installmentSequenceNumber: number;
+  installmentSequenceNumber: NumberValidation;
   installmentDueDate: Date;
-  installmentValue: number;
-  latePaymentValue: number;
-  fineValue: number;
-  otherChargesValue: number;
-  iofValue: number;
-  discountValue: number;
-  currentValue: number;
+  installmentValue: NumberValidation;
+  latePaymentInterestValue: NumberValidation;
+  fineValue: NumberValidation;
+  otherChargesValue: NumberValidation;
+  iofValue: NumberValidation;
+  discountValue: NumberValidation;
+  currentValue: NumberValidation;
   situationId: string;
   salesSituationId: string;
+  isValidPayment: boolean;
 }
 
 export class Transaction extends BaseEntity<ITransactionProps> {
   constructor(props: ITransactionProps, id?: string) {
     super(props, id);
+
+    this.props.isValidPayment = this.validatePayment();
   }
 
-  get institutionNumber(): number {
+  validatePayment(): boolean {
+    const {
+      amount,
+      installmentNumber,
+      installmentValue,
+      latePaymentInterestValue,
+      fineValue,
+      otherChargesValue,
+      currentValue,
+    } = this.props;
+
+    const monthlyPayment = amount.value / installmentNumber.value;
+    const aditionalValues =
+      fineValue.value + latePaymentInterestValue.value + otherChargesValue;
+
+    return (
+      Math.trunc(monthlyPayment) + installmentValue.value + aditionalValues !==
+      currentValue
+    );
+  }
+
+  get institutionNumber(): NumberValidation {
     return this.props.institutionNumber;
   }
 
-  get agencyNumber(): number {
+  get agencyNumber(): NumberValidation {
     return this.props.agencyNumber;
   }
 
-  get customerId(): number {
+  get customerId(): NumberValidation {
     return this.props.customerId;
   }
 
@@ -56,7 +81,7 @@ export class Transaction extends BaseEntity<ITransactionProps> {
     return this.props.document;
   }
 
-  get contractNumber(): number {
+  get contractNumber(): NumberValidation {
     return this.props.contractNumber;
   }
 
@@ -64,11 +89,11 @@ export class Transaction extends BaseEntity<ITransactionProps> {
     return this.props.contractDate;
   }
 
-  get amount(): number {
+  get amount(): NumberValidation {
     return this.props.amount;
   }
 
-  get productId(): number {
+  get productId(): NumberValidation {
     return this.props.productId;
   }
 
@@ -76,7 +101,7 @@ export class Transaction extends BaseEntity<ITransactionProps> {
     return this.props.productDescription;
   }
 
-  get walletId(): number {
+  get walletId(): NumberValidation {
     return this.props.walletId;
   }
 
@@ -84,14 +109,14 @@ export class Transaction extends BaseEntity<ITransactionProps> {
     return this.props.walletDescription;
   }
 
-  get proposalNumber(): number {
+  get proposalNumber(): NumberValidation {
     return this.props.proposalNumber;
   }
 
-  get installments(): number {
+  get installments(): NumberValidation {
     return this.props.installments;
   }
-  get installmentNumber(): number {
+  get installmentNumber(): NumberValidation {
     return this.props.installmentNumber;
   }
 
@@ -99,7 +124,7 @@ export class Transaction extends BaseEntity<ITransactionProps> {
     return this.props.installmentType;
   }
 
-  get installmentSequenceNumber(): number {
+  get installmentSequenceNumber(): NumberValidation {
     return this.props.installmentSequenceNumber;
   }
 
@@ -107,31 +132,31 @@ export class Transaction extends BaseEntity<ITransactionProps> {
     return this.props.installmentDueDate;
   }
 
-  get installmentValue(): number {
+  get installmentValue(): NumberValidation {
     return this.props.installmentValue;
   }
 
-  get latePaymentValue(): number {
-    return this.props.latePaymentValue;
+  get latePaymentInterestValue(): NumberValidation {
+    return this.props.latePaymentInterestValue;
   }
 
-  get fineValue(): number {
+  get fineValue(): NumberValidation {
     return this.props.fineValue;
   }
 
-  get otherChargesValue(): number {
+  get otherChargesValue(): NumberValidation {
     return this.props.otherChargesValue;
   }
 
-  get iofValue(): number {
+  get iofValue(): NumberValidation {
     return this.props.iofValue;
   }
 
-  get discountValue(): number {
+  get discountValue(): NumberValidation {
     return this.props.discountValue;
   }
 
-  get currentValue(): number {
+  get currentValue(): NumberValidation {
     return this.props.currentValue;
   }
 
@@ -141,5 +166,9 @@ export class Transaction extends BaseEntity<ITransactionProps> {
 
   get salesSituationId(): string {
     return this.props.salesSituationId;
+  }
+
+  get isValidPayment(): boolean {
+    return this.props.isValidPayment;
   }
 }

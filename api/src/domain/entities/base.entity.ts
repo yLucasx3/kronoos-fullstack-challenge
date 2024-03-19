@@ -7,14 +7,19 @@ export abstract class BaseEntity<T> {
 
   constructor(props: T, id?: string) {
     this.id = id ?? crypto.randomUUID();
+    const errors = [];
 
     if (props) {
       for (const key of Object.keys(props)) {
         const value = props[key as keyof T];
 
         if (value instanceof BaseValidation && !value.isValid()) {
-          throw value.error();
+          errors.push(value.error());
         }
+      }
+
+      if (errors.length) {
+        throw errors;
       }
     }
 

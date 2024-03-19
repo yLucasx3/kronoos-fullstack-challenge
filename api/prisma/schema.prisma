@@ -34,7 +34,7 @@ model Transaction {
   installmentSequenceNumber Int
   installmentDueDate        DateTime
   installmentValue          Float
-  latePaymentValue          Float
+  latePaymentInterestValue  Float
   fineValue                 Float
   otherChargesValue         Float
   iofValue                  Float
@@ -42,6 +42,7 @@ model Transaction {
   currentValue              Float
   situationId               String
   salesSituationId          String
+  isValidPayment            Boolean
 
   @@map("transactions")
 }
